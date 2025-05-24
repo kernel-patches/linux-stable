@@ -14861,6 +14861,14 @@ static int check_cond_jmp_op(struct bpf_verifier_env *env,
 			return err;
 	}
 
+	if (dst_reg->type == PTR_TO_STACK)
+		insn_flags |= INSN_F_DST_REG_STACK;
+	if (insn_flags) {
+		err = push_jmp_history(env, this_branch, insn_flags, 0);
+		if (err)
+			return err;
+	}
+
 	is_jmp32 = BPF_CLASS(insn->code) == BPF_JMP32;
 	pred = is_branch_taken(dst_reg, src_reg, opcode, is_jmp32);
 	if (pred >= 0) {
