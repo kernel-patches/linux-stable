@@ -1,0 +1,41 @@
+name: libbpf-ci
+
+# CI entry point. Runs on every push to a synced version branch (linux-X.Y.y).
+#
+# This is currently a DEMO STUB that only proves the infrastructure works:
+# the sync produced a branch that carries the kernel source + this repo's CI
+# code, the push triggered CI on our bare-metal runners, and the workflow can
+# read the overlaid ci/ config. The actual kernel build + selftest run is left
+# for Shung-Hsi to fill in here (see ci/ and the kernel source at the repo root).
+
+on:
+  push:
+    branches: [ 'linux-*.y' ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  show:
+    # Our bare-metal self-hosted x86_64 fleet (kernel-patches/runner).
+    runs-on: [ self-hosted, docker-noble-main, X64 ]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Show what is being tested
+        run: |
+          echo "Branch:   ${GITHUB_REF_NAME}"
+          echo "Revision: ${GITHUB_SHA}"
+          echo
+          echo "=== recent history (released tip -> stable-queue -> ci overlay) ==="
+          git log --oneline -8
+          echo
+          echo "=== kernel source is present on the branch (top of Makefile) ==="
+          head -5 Makefile || echo "no Makefile -- kernel source missing?"
+          echo
+          echo "=== overlaid ci/ config is readable ==="
+          cat ci/vmtest/configs/DENYLIST
+          echo
+          echo "Kernel build + selftests are intentionally left as a stub for Shung-Hsi."
