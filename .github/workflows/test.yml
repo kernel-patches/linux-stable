@@ -1,4 +1,4 @@
-name: libbpf-ci
+name: BPF CI
 
 # CI entry point. Runs on every push to a synced version branch (linux-X.Y.y).
 #
