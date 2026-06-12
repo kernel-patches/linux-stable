@@ -49,7 +49,11 @@ jobs:
           echo "Will sync: ${json}"
 
   sync:
-    needs: prepare
+    needs: [prepare, sync-mainline]
+    # Run stable syncs after the mainline refresh so first-time seeds use the
+    # fresh base. Tolerate a mainline-sync failure: existing branches seed from
+    # their own published branch, and a stale mainline still works as a base.
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -71,3 +75,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: .github/scripts/sync-stable.sh "${{ matrix.version }}"
+
+  # Refresh the shared `mainline` base (torvalds master) so stable-branch pushes
+  # stay thin and new series stay cheap to seed. Plain mirror, no CI overlay.
+  sync-mainline:
+    if: github.repository == 'kernel-patches/linux-stable'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    name: sync mainline
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Generate bot token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.KPD_BOT_APP_ID }}
+          private-key: ${{ secrets.KPD_BOT_PRIVATE_KEY }}
+
+      - name: Sync mainline
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: .github/scripts/sync-mainline.sh
