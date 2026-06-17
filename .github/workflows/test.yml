@@ -39,3 +39,49 @@ jobs:
           cat ci/vmtest/configs/DENYLIST
           echo
           echo "Kernel build + selftests are intentionally left as a stub for Shung-Hsi."
+
+      - name: Patch kernel source
+        uses: libbpf/ci/patch-kernel@v3
+        with:
+          patches-root: '${{ github.workspace }}/ci/diffs'
+
+      - name: Configure kernel build
+        shell: bash
+        run: |
+          cat tools/testing/selftests/bpf/config \
+              tools/testing/selftests/bpf/config.${{ inputs.arch }} > .config
+          # this file might or might not exist depending on kernel version
+          cat tools/testing/selftests/bpf/config.vm >> .config || :
+          make olddefconfig && make prepare
+
+      - name: Build kernel image
+        shell: bash
+        run: |
+          make -j $((4*$(nproc))) all
+
+      - name: Build selftests/bpf
+        uses: libbpf/ci/build-selftests@v3
+        env:
+          MAX_MAKE_JOBS: 32
+          VMLINUX_BTF: ${{ github.workspace }}/vmlinux
+          VMLINUX_H: ''
+        with:
+          arch: ${{ inputs.arch }}
+          kernel-root: ${{ github.workspace }}
+          llvm-version: ${{ inputs.llvm-version }}
+
+      - name: Run selftests
+        env:
+          ALLOWLIST_FILE: /tmp/allowlist
+          DENYLIST_FILE: /tmp/denylist
+          KERNEL: ${{ inputs.kernel }}
+          VMLINUX: ${{ github.workspace }}/vmlinux
+          LLVM_VERSION: ${{ inputs.llvm-version }}
+          SELFTESTS_BPF: ${{ github.workspace }}/tools/testing/selftests/bpf
+          VMTEST_CONFIGS: ${{ github.workspace }}/ci/vmtest/configs
+        uses: libbpf/ci/run-vmtest@v3
+        with:
+          arch: ${{ inputs.arch }}
+          kbuild-output: ${{ github.workspace }}
+          kernel-root: ${{ github.workspace }}/.kernel
+          vmlinuz: ${{ inputs.arch }}/vmlinuz-${{ inputs.kernel }}
