@@ -75,6 +75,11 @@ jobs:
           arch: ${{ matrix.arch }}
           llvm-version: ${{ matrix.llvm_version }}
 
+      # TODO: merge these into .github/scripts/sync-stable.sh
+      - name: Patch kernel source (specific)
+        uses: libbpf/ci/patch-kernel@v3
+        with:
+          patches-root: '${{ github.workspace }}/ci/diffs/${{ matrix.kernel }}'
       - name: Patch kernel source
         uses: libbpf/ci/patch-kernel@v3
         with:
