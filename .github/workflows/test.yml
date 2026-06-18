@@ -118,5 +118,5 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
           kbuild-output: ${{ github.workspace }}
-          kernel-root: ${{ github.workspace }}/.kernel
+          kernel-root: ${{ github.workspace }}
           vmlinuz: ${{ matrix.arch }}/vmlinuz-${{ matrix.kernel }}
