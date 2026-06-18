@@ -68,6 +68,13 @@ jobs:
           echo
           echo "Kernel build + selftests are intentionally left as a stub for Shung-Hsi."
 
+      - name: Setup environment
+        uses: libbpf/ci/setup-build-env@v3
+        with:
+          pahole: master
+          arch: ${{ matrix.arch }}
+          llvm-version: ${{ matrix.llvm_version }}
+
       - name: Patch kernel source
         uses: libbpf/ci/patch-kernel@v3
         with:
