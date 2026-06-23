@@ -11,6 +11,8 @@ name: BPF CI
 on:
   push:
     branches: [ 'linux-*.y' ]
+  pull_request:
+    branches: [ 'linux-*.y' ]
   workflow_dispatch:
 
 concurrency:
@@ -24,28 +26,44 @@ jobs:
       build-matrix: ${{ steps.gen.outputs.build_matrix }}
     steps:
       - id: gen
-        name: Select build config for ${{ github.ref_name }}
+        name: Select build config
         shell: bash
+        env:
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+          IS_MANAGED_REPO: ${{ github.repository_owner == 'kernel-patches' && github.repository == 'kernel-patches/linux-stable' }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          case "${GITHUB_REF_NAME}" in
+          case "${TARGET_BRANCH}" in
             linux-7.0.y) llvm=21; kernel=7.0 ;;
             linux-6.18.y) llvm=21; kernel=6.18 ;;
             linux-6.12.y) llvm=18; kernel=6.12 ;;
             linux-6.6.y) llvm=18; kernel=6.6 ;;
             linux-6.1.y) llvm=18; kernel=6.1 ;;
             *)
-              echo "::error::no CI config defined for branch ${GITHUB_REF_NAME}"
+              echo "::error::no CI config defined for branch ${TARGET_BRANCH}"
               exit 1
               ;;
           esac
-          matrix=$(jq -nc --arg llvm "$llvm" --arg kernel "$kernel" \
-            '{include: [{arch: "x86_64", llvm_version: $llvm, kernel: $kernel}]}')
+
+          # Bare-metal runners are only available to kernel-patches
+          if [ "${IS_MANAGED_REPO}" = "true" ]; then
+            runner_labels='["self-hosted", "docker-noble-main", "x86_64"]'
+          else
+            runner_labels='["ubuntu-24.04"]'
+          fi
+
+          matrix=$(jq -nc \
+            --arg llvm "$llvm" \
+            --arg kernel "$kernel" \
+            --argjson runners "$runner_labels" \
+            '{include: [{arch: "x86_64", llvm_version: $llvm, kernel: $kernel, runs_on: $runners}]}')
+
           echo "build_matrix=${matrix}" >> "$GITHUB_OUTPUT"
 
   build-and-test:
     needs: [set-matrix]
     name: ${{ matrix.arch }} llvm-${{ matrix.llvm_version }} kernel-${{ matrix.kernel }}
-    runs-on: [ self-hosted, docker-noble-main, x86_64 ]
+    runs-on: ${{ matrix.runs_on }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.set-matrix.outputs.build-matrix) }}
