@@ -67,7 +67,7 @@ git clone --no-tags --depth=1 --single-branch --branch master --sparse "${QUEUE_
 git -C "${qrepo}" sparse-checkout set "queue-${VERSION}"
 if ! grep -qxF "${VERSION}" "${qrepo}/active_kernel_versions"; then
     echo "::warning::stable ${VERSION} not in active_kernel_versions (EOL?), skipping"
-    exit 0
+    exit 1
 fi
 
 # Base the branch on the released upstream tip (incremental given the seed).
