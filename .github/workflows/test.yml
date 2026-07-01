@@ -47,16 +47,21 @@ jobs:
 
           # Bare-metal runners are only available to kernel-patches
           if [ "${IS_MANAGED_REPO}" = "true" ]; then
-            runner_labels='["self-hosted", "docker-noble-main", "x86_64"]'
+            matrix=$(jq -nc \
+              --arg llvm "$llvm" \
+              --arg kernel "$kernel" \
+              '{include: [
+                {arch: "x86_64", llvm_version: $llvm, kernel: $kernel, runs_on: ["self-hosted", "docker-noble-main", "x86_64"], continue_on_error: false},
+                {arch: "aarch64", llvm_version: $llvm, kernel: $kernel, runs_on: ["self-hosted", "docker-noble-main", "aarch64"], continue_on_error: true}
+              ]}')
           else
-            runner_labels='["ubuntu-24.04"]'
+            matrix=$(jq -nc \
+              --arg llvm "$llvm" \
+              --arg kernel "$kernel" \
+              '{include: [
+                {arch: "x86_64", llvm_version: $llvm, kernel: $kernel, runs_on: ["ubuntu-24.04"], continue_on_error: false}
+              ]}')
           fi
-
-          matrix=$(jq -nc \
-            --arg llvm "$llvm" \
-            --arg kernel "$kernel" \
-            --argjson runners "$runner_labels" \
-            '{include: [{arch: "x86_64", llvm_version: $llvm, kernel: $kernel, runs_on: $runners}]}')
 
           echo "build_matrix=${matrix}" >> "$GITHUB_OUTPUT"
 
@@ -64,6 +69,7 @@ jobs:
     needs: [set-matrix]
     name: ${{ matrix.arch }} llvm-${{ matrix.llvm_version }} kernel-${{ matrix.kernel }}
     runs-on: ${{ matrix.runs_on }}
+    continue-on-error: ${{ matrix.continue_on_error }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.set-matrix.outputs.build-matrix) }}
