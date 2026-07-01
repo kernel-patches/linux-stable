@@ -1,7 +1,7 @@
 From 0940cc4db99461729f8a0b30e7825f273cbb9769 Mon Sep 17 00:00:00 2001
 From: Stephen Veiss <sveiss@meta.com>
 Date: Thu, 27 Apr 2023 15:53:33 -0700
-Subject: [PATCH 3/4] selftests/bpf: Test_progs can read test lists from file
+Subject: [PATCH 3/5] selftests/bpf: Test_progs can read test lists from file
 
 [ Upstream commit 64276f01dce85f72853617e513622b5645497d81 ]
 
