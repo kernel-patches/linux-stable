@@ -43,7 +43,7 @@ jobs:
           INPUT: ${{ inputs.versions }}
         run: |
           # Tracked stable set: newest stable down to the 6.1 LTS floor.
-          list="${INPUT:-7.0 6.18 6.12 6.6 6.1}"
+          list="${INPUT:-7.1 6.18 6.12 6.6 6.1}"
           json="$(printf '%s\n' ${list} | jq -R . | jq -cs .)"
           echo "versions=${json}" >> "${GITHUB_OUTPUT}"
           echo "Will sync: ${json}"
