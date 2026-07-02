@@ -99,6 +99,15 @@ jobs:
           arch: ${{ matrix.arch }}
           llvm-version: ${{ matrix.llvm_version }}
 
+      - name: HACK - Ensure llvm-strip is available
+        shell: bash
+        run: |
+          # It seems On aarch64 the llvm package wasn't pulled with llvm.sh,
+          # and thus llvm-strip binary was not available. Make sure it is
+          # installed.
+          sudo -E apt-get install --no-install-recommends -y llvm-${{ matrix.llvm_version }}
+
+
       # TODO: merge these into .github/scripts/sync-stable.sh
       - name: Patch kernel source (specific)
         uses: libbpf/ci/patch-kernel@v3
