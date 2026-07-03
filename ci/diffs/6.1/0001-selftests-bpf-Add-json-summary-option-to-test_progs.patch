@@ -1,7 +1,7 @@
 From a9aea4e643915ae7500e36d09dc8d7ab258b103d Mon Sep 17 00:00:00 2001
 From: Manu Bretelle <chantr4@gmail.com>
 Date: Fri, 17 Mar 2023 09:32:56 -0700
-Subject: [PATCH 1/5] selftests/bpf: Add --json-summary option to test_progs
+Subject: [PATCH 1/6] selftests/bpf: Add --json-summary option to test_progs
 
 [ Upstream commit 2be7aa76cc69633930fb747e1d85d33a63a60c02 ]
 

@@ -1,7 +1,7 @@
 From ff6d8c754470d6d6f6a3647a8b4875867fb6a2e9 Mon Sep 17 00:00:00 2001
 From: Manu Bretelle <chantr4@gmail.com>
 Date: Fri, 21 Oct 2022 14:06:59 -0700
-Subject: [PATCH 5/5] selftests/bpf: Add config.aarch64
+Subject: [PATCH 5/6] selftests/bpf: Add config.aarch64
 
 config.aarch64, similarly to config.{s390x,x86_64} is a config enabling
 building a kernel on aarch64 to be used in bpf's

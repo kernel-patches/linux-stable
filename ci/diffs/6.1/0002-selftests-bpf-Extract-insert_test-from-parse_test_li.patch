@@ -1,7 +1,7 @@
 From 2fed7099db1f9465a92c88a6b8f937fa0ccdc787 Mon Sep 17 00:00:00 2001
 From: Stephen Veiss <sveiss@meta.com>
 Date: Thu, 27 Apr 2023 15:53:32 -0700
-Subject: [PATCH 2/5] selftests/bpf: Extract insert_test from parse_test_list
+Subject: [PATCH 2/6] selftests/bpf: Extract insert_test from parse_test_list
 
 [ Upstream commit 0a5c0de8b66f9789422f04de7304e374a2ea8df5 ]
 

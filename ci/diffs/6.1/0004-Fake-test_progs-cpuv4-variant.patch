@@ -1,7 +1,7 @@
 From 631f9d4dda21bd8102448f2f8b6b3b2dcd77a166 Mon Sep 17 00:00:00 2001
 From: Paul Chaignon <paul.chaignon@gmail.com>
 Date: Wed, 20 May 2026 11:44:49 +0200
-Subject: [PATCH 4/5] Fake test_progs-cpuv4 variant
+Subject: [PATCH 4/6] Fake test_progs-cpuv4 variant
 
 Signed-off-by: Paul Chaignon <paul.chaignon@gmail.com>
 ---
